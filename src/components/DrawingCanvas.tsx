@@ -1,49 +1,64 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import {
-  ExcalidrawProps,
-  ExcalidrawInitialDataState,
-} from "@excalidraw/excalidraw/types/types";
+import { ExcalidrawProps, } from "@excalidraw/excalidraw/types/types";
 
 export function ExcalidrawPage() {
 
   return (
     <div className="w-screen h-screen">
       <Suspense fallback={"loading..."}>
-        <DynamicExcalidraw
+        <ExcalidrawClientCanvas
           viewModeEnabled={false}
           zenModeEnabled={false}
-          initialData={initialData}
-        />
+        >
+          <WelcomeScreen>
+            <HintsToolbar />
+
+            <LandingPageCenter>
+              <Heading>
+                  Welcome to Scribble!
+              </Heading>
+
+              <div>
+                <p className="text-gray-400">1. Scribble together a rough idea.</p>
+                <p className="text-gray-400">2. Describe it.</p>
+                <p className="text-gray-400">3. AI-ify it!</p>
+              </div>
+            </LandingPageCenter>
+
+          </WelcomeScreen>
+        </ExcalidrawClientCanvas>
       </Suspense>
     </div>
   );
 }
 
-const DynamicExcalidraw = dynamic(
+const ExcalidrawClientCanvas = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), {
     ssr: false,
   },
 ) as React.FC<ExcalidrawProps>;
 
-const initialData = [{
-  type: "rectangle",
-  version: 141,
-  versionNonce: 361174001,
-  isDeleted: false,
-  id: "oDVXy8D6rom3H1-LLH2-f",
-  fillStyle: "hachure",
-  strokeWidth: 1,
-  strokeStyle: "solid",
-  roughness: 1,
-  opacity: 100,
-  angle: 0,
-  x: 100.50390625,
-  y: 93.67578125,
-  strokeColor: "#000000",
-  backgroundColor: "transparent",
-  width: 186.47265625,
-  height: 141.9765625,
-  seed: 1968410350,
-  groupIds: [],
-}];
+const WelcomeScreen = dynamic(
+  () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen), {
+    ssr: false,
+  },
+) as React.FC<ExcalidrawProps>;
+
+const HintsToolbar = dynamic(
+  () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen.Hints.ToolbarHint), {
+    ssr: false,
+  },
+) as React.FC<ExcalidrawProps>;
+
+const LandingPageCenter = dynamic(
+  () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen.Center), {
+    ssr: false,
+  },
+);
+
+const Heading = dynamic(
+  () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen.Center.Heading), {
+    ssr: false,
+  },
+);

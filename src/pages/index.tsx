@@ -1,11 +1,18 @@
 import { type NextPage } from "next";
-import { useState, useEffect } from "react";
 import { ExcalidrawPage } from "~/components/DrawingCanvas";
+import { PromptInput } from "~/components/PromptInput";
 
 const Home: NextPage = () => {
   return (
     <>
-      <ExcalidrawPage />
+      <main className="flex flex-col min-h-screen">
+        <div className="flex flex-col md:flex-row">
+          <div>
+            <ExcalidrawPage />
+            <PromptInput />
+          </div>
+        </div>
+      </main>
     </>
   );
 };
