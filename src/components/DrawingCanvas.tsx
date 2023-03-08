@@ -1,16 +1,17 @@
-import { Suspense } from "react";
+import { MutableRefObject, Suspense, useState } from "react";
 import dynamic from "next/dynamic";
-import { ExcalidrawProps, } from "@excalidraw/excalidraw/types/types";
+import { ExcalidrawProps, ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
+import { PromptInput } from "./PromptInput";
 
-export function ExcalidrawPage() {
+export function ExcalidrawPage({ excalidrawAPI: excalidrawRef }:{
+  excalidrawAPI: MutableRefObject<ExcalidrawAPIRefValue|null>
+}) {
+  const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue|null>(null);
 
   return (
-    <div className="w-screen h-screen">
+    <div className=" w-full h-[90%] ">
       <Suspense fallback={"loading..."}>
-        <ExcalidrawClientCanvas
-          viewModeEnabled={false}
-          zenModeEnabled={false}
-        >
+        <ExcalidrawClientCanvas ref={setExcalidrawAPI} >
           <WelcomeScreen>
             <HintsToolbar />
 
@@ -29,6 +30,7 @@ export function ExcalidrawPage() {
           </WelcomeScreen>
         </ExcalidrawClientCanvas>
       </Suspense>
+      <PromptInput excalidrawRef={excalidrawAPI}/>
     </div>
   );
 }
@@ -37,7 +39,7 @@ const ExcalidrawClientCanvas = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), {
     ssr: false,
   },
-) as React.FC<ExcalidrawProps>;
+)
 
 const WelcomeScreen = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen), {

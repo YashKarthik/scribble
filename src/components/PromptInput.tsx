@@ -1,10 +1,17 @@
-import React, { useState } from 'react'
+import { exportToBlob, exportToCanvas } from '@excalidraw/excalidraw';
+import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
+import React, { MutableRefObject, useState } from 'react'
 
-export const PromptInput = () => {
+export function PromptInput({ excalidrawRef: excalidrawAPI }:{
+  excalidrawRef: ExcalidrawAPIRefValue|null
+}) {
   const [textPrompt, setTextPrompt] = useState("");
 
   return (
-    <div className='bg-black'>
+    <div className="
+      min-w-max my-2
+    ">
+
       <input
         type="text"
         name="text-prompt"
@@ -12,19 +19,48 @@ export const PromptInput = () => {
         placeholder="An image of a futuristic supercar."
         onChange={e => setTextPrompt(e.target.value)}
         className="
-          mx-3 px-1
+          mx-3 p-2
+          italic
           border-2 rounded-md border-solid 
           bg-inherit border-gray-400
+          w-3/4
         ">
       </input>
 
       <button
         type="button"
-        onClick={e => {
-          e.preventDefault();
-          console.log(textPrompt);
+        onClick={async () => {
+          console.log(excalidrawAPI);
+          if (!excalidrawAPI) {
+            console.log("!excalidrawAPI");
+            return;
+          }
+          if (!excalidrawAPI.ready) {
+            console.log("not init")
+            return;
+          }
+          console.log("init")
+
+          //const elements = excalidrawAPI.current.getSceneElements();
+          //if (!elements || !elements.length) return;
+
+          //const canvas = await exportToCanvas({
+          //  elements: elements,
+          //  appState: excalidrawAPI.current.getAppState(),
+          //  files: excalidrawAPI.current.getFiles(),
+          //  getDimensions: () => { return {width: 350, height: 350}}
+          //});
+          //const ctx = canvas.getContext("2d");
+          //ctx!.font = "30px Virgil";
+          //console.log('hello', canvas.toDataURL());
         }}
-      >
+        className="
+          bg-indigo-100 text-indigo-900
+          border-2 rounded-md border-solid 
+          border-indigo-100
+          hover:bg-indigo-200 hover:border-indigo-200
+          p-2
+        ">
         Generate!
       </button>
     </div>
