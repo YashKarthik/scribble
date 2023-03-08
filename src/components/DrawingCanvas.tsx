@@ -1,52 +1,48 @@
-import { Suspense, useCallback, MutableRefObject, useState } from "react";
+import { Suspense, MutableRefObject, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { ExcalidrawProps, ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
 
-export function ExcalidrawPage({ excalidrawAPI }:{
-  excalidrawAPI: MutableRefObject<ExcalidrawAPIRefValue|null>
+export function ExcalidrawPage({ excalidrawRef }:{
+  excalidrawRef: MutableRefObject<ExcalidrawAPIRefValue|null>
 }) {
 
-  const [apiRefState, setApiRefState] = useState<ExcalidrawAPIRefValue|null>(null);
+  const [Excalidraw, setExcalidraw] = useState<any>(null);
+  const exportToCanvasRef = useRef<any>(null);
+
+  useEffect(() => {
+    import('@excalidraw/excalidraw').then((comp) => {
+      setExcalidraw(comp.Excalidraw)
+      exportToCanvasRef.current = comp.exportToCanvas;
+    });
+  }, []);
 
   return (
     <div className=" w-full h-[90%] ">
       <Suspense fallback={"loading..."}>
-        <ExcalidrawClientCanvas ref={excalidrawAPI}>
-          <WelcomeScreen>
-            <HintsToolbar />
+        {Excalidraw &&
+          <Excalidraw ref={excalidrawRef}>
+            <WelcomeScreen>
+              <HintsToolbar />
 
-            <LandingPageCenter>
-              <Heading>
-                  Welcome to Scribble!
-              </Heading>
+              <LandingPageCenter>
+                <Heading>
+                  <p className="text-4xl"> Welcome to Scribble! </p>
+                </Heading>
 
-              <div>
-                <p className="text-gray-400">1. Scribble together a rough idea.</p>
-                <p className="text-gray-400">2. Describe it.</p>
-                <p className="text-gray-400">3. AI-ify it!</p>
-              </div>
-            </LandingPageCenter>
+                <div className="font-[Virgil] text-sm">
+                  <p className="text-gray-400">1. Scribble together a rough idea.</p>
+                  <p className="text-gray-400">2. Describe it.</p>
+                  <p className="text-gray-400">3. AI-ify it!</p>
+                </div>
+              </LandingPageCenter>
 
-          </WelcomeScreen>
-        </ExcalidrawClientCanvas>
+            </WelcomeScreen>
+          </Excalidraw>
+        }
       </Suspense>
-
-      <button type="button" onClick={async () => {
-        console.log('in button api/current', excalidrawAPI.current);
-        console.log('in button ready', excalidrawAPI.current?.ready);
-      }}>
-        Test button
-      </button>
-
     </div>
   );
 }
-
-const ExcalidrawClientCanvas = dynamic(
-  () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), {
-    ssr: false,
-  },
-)
 
 const WelcomeScreen = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.WelcomeScreen), {
