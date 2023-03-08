@@ -12,10 +12,10 @@ const Home: NextPage = () => {
       <main className="flex flex-col min-h-screen">
 
         <h1 className="
-          self-center my-4
+          self-center my-2
           text-4xl font-black font-[Virgil]
           underline decoration-wavy decoration-indigo-400
-          decoration-2 underline-offset-4
+          decoration-2 underline-offset-8
         ">Scribble!</h1>
 
         <div className="
@@ -38,60 +38,25 @@ const Home: NextPage = () => {
             <img src="https://www.yashkarthik.xyz/ogImage.png" alt="test" />
           </div>
         </div>
+
+        <footer className="self-center">
+          {[
+            ["Github", "https://github.com/yashkarthik/scribble"],
+            ["Blog", "https://yashkarthik.xyz/"],
+            ["Twitter", "https://twitter.com/_yashkarthik/"],
+            ["Farcaster", "https://warpcast.com/yashkarthik/"],
+          ].map(link => <a target="_blank"
+                href={link[1]}
+                className="
+                  mx-3
+                  font-mono text-gray-500 text-sm
+                  hover:underline decoration-wavy
+                ">{link[0]}</a>
+          )}
+        </footer>
       </main>
     </>
   );
 };
-
-//import { FC, ReactElement, Fragment } from 'react';
-//
-//const Home: FC = (): ReactElement => {
-//  const excalidrawRef = useRef<ExcalidrawAPIRefValue>(null);
-//  const [Excalidraw, setExcalidraw] = useState<any>(null);
-//  const exportToCanvasRef = useRef<any>(null);
-//
-//  useEffect(() => {
-//    import('@excalidraw/excalidraw').then((comp) => {
-//      setExcalidraw(comp.Excalidraw)
-//      exportToCanvasRef.current = comp.exportToCanvas;
-//    });
-//  }, []);
-//
-//  return (
-//    <Fragment>
-//      {!Excalidraw ? (
-//        <div>Hello</div>
-//      ) : (
-//        <div className="App">
-//          <h1> Excalidraw Example</h1>
-//          <div className="w-screen h-screen">
-//            <Excalidraw ref={excalidrawRef} />
-//          </div>
-//
-//          <button type="button" onClick={async () => {
-//            if (!excalidrawRef) return;
-//            if (!excalidrawRef.current) return;
-//            if (!excalidrawRef.current.ready) return;
-//
-//            const elements = excalidrawRef.current.getSceneElements();
-//            if (!elements || !elements.length) return;
-//
-//            const canvas = await exportToCanvasRef.current({
-//              elements: elements,
-//              appState: excalidrawRef.current.getAppState(),
-//              files: excalidrawRef.current.getFiles(),
-//              getDimensions: () => { return {width: 350, height: 350}}
-//            });
-//            const ctx = canvas.getContext("2d");
-//            ctx!.font = "30px Virgil";
-//            console.log('hello', canvas.toDataURL());
-//          }}>
-//            Export
-//          </button>
-//        </div>
-//      )}
-//    </Fragment>
-//  );
-//};
 
 export default Home;
