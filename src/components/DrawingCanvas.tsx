@@ -1,17 +1,17 @@
-import { MutableRefObject, Suspense, useState } from "react";
+import { Suspense, useCallback, MutableRefObject, useState } from "react";
 import dynamic from "next/dynamic";
 import { ExcalidrawProps, ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
-import { PromptInput } from "./PromptInput";
 
-export function ExcalidrawPage({ excalidrawAPI: excalidrawRef }:{
+export function ExcalidrawPage({ excalidrawAPI }:{
   excalidrawAPI: MutableRefObject<ExcalidrawAPIRefValue|null>
 }) {
-  const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawAPIRefValue|null>(null);
+
+  const [apiRefState, setApiRefState] = useState<ExcalidrawAPIRefValue|null>(null);
 
   return (
     <div className=" w-full h-[90%] ">
       <Suspense fallback={"loading..."}>
-        <ExcalidrawClientCanvas ref={setExcalidrawAPI} >
+        <ExcalidrawClientCanvas ref={excalidrawAPI}>
           <WelcomeScreen>
             <HintsToolbar />
 
@@ -30,7 +30,14 @@ export function ExcalidrawPage({ excalidrawAPI: excalidrawRef }:{
           </WelcomeScreen>
         </ExcalidrawClientCanvas>
       </Suspense>
-      <PromptInput excalidrawRef={excalidrawAPI}/>
+
+      <button type="button" onClick={async () => {
+        console.log('in button api/current', excalidrawAPI.current);
+        console.log('in button ready', excalidrawAPI.current?.ready);
+      }}>
+        Test button
+      </button>
+
     </div>
   );
 }

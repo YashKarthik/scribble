@@ -1,9 +1,9 @@
 import { exportToBlob, exportToCanvas } from '@excalidraw/excalidraw';
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
-import React, { MutableRefObject, useState } from 'react'
+import React, { MutableRefObject, useEffect, useState } from 'react'
 
 export function PromptInput({ excalidrawRef: excalidrawAPI }:{
-  excalidrawRef: ExcalidrawAPIRefValue|null
+  excalidrawRef: MutableRefObject<ExcalidrawAPIRefValue|null>
 }) {
   const [textPrompt, setTextPrompt] = useState("");
 
@@ -30,16 +30,9 @@ export function PromptInput({ excalidrawRef: excalidrawAPI }:{
       <button
         type="button"
         onClick={async () => {
-          console.log(excalidrawAPI);
-          if (!excalidrawAPI) {
-            console.log("!excalidrawAPI");
-            return;
-          }
-          if (!excalidrawAPI.ready) {
-            console.log("not init")
-            return;
-          }
-          console.log("init")
+          if (!excalidrawAPI) return;
+          if (!excalidrawAPI.current?.ready) return;
+          console.log("PromptInput initialized.");
 
           //const elements = excalidrawAPI.current.getSceneElements();
           //if (!elements || !elements.length) return;
