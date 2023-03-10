@@ -12,7 +12,7 @@ export const replicateAPIRouter = createTRPCRouter({
     )
     .output(
       z.object({
-        predictionStatus: z.enum(["succeeded", "starting", "processing", "failed", "cancelled"]),
+        predictionStatus: z.enum(["succeeded", "starting", "processing", "failed"]),
         predictionId: z.string().min(10),
         predictionOutput: z.string().url().nullable(),
       })
@@ -21,7 +21,7 @@ export const replicateAPIRouter = createTRPCRouter({
       console.log(input);
       return {
         predictionId: "esaotuhnaoetonthntahtneheo",
-        predictionStatus: "starting",
+        predictionStatus: "succeeded",
         predictionOutput: null,
       };
     }),

@@ -18,7 +18,7 @@ export function PromptInput({
   excalidrawRef: MutableRefObject<ExcalidrawAPIRefValue|null>
   predictionId: MutableRefObject<string|null>
   predictionOutput: MutableRefObject<string|null>
-  setPredictionStatus: Dispatch<SetStateAction<"succeeded" | "starting" | "processing" | "failed" | "cancelled" | null>>
+  setPredictionStatus: Dispatch<SetStateAction<"succeeded" | "starting" | "processing" | "failed" | null>>
 }) {
   useEffect(() => {
     import('@excalidraw/excalidraw').then((comp) => {
@@ -61,57 +61,62 @@ export function PromptInput({
 
 
   return (
-    <div className="
+    <form className="
       min-w-max my-2
-      flex flex-row
-    ">
+      flex md:flex-row flex-col gap-3 "
+      onSubmit={async e => {
+        e.preventDefault();
+
+        const canvasUrl = await getCanvasUrl();
+        if (!canvasUrl) {
+          setEmptyCanvasError(true);
+          return;
+        }
+
+        const data = await t.replicate.createPrediction.fetch({
+          textPrompt,
+          canvasUrl,
+        });
+
+        predictionId.current = data.predictionId;
+        predictionOutput.current = data.predictionOutput;
+        setPredictionStatus(data.predictionStatus);
+      }}
+      >
 
       <input
         type="text"
         name="text-prompt"
         id="prompt-input"
+        value={textPrompt}
         placeholder="An image of a futuristic supercar."
         onChange={e => setTextPrompt(e.target.value)}
         className="
-          ml-3 mr- p-2
+          mx-3 p-2
           italic
           border-2 rounded-md border-solid 
           bg-inherit border-gray-400
-          w-3/4
+          md:w-3/4 w-full
         ">
       </input>
 
       <button
-        type="button"
+        type="submit"
         title="Generate"
         className={`
-          px-2 mr-3 ml-1 w-1/4 text-2xl
+          px-4 mx-3 md:w-fit w-full
           bg-violet-100 text-indigo-700 font-semibold
           border-2 rounded-md border-solid 
+          ${predictionId.current ? "lg:text-xl" : "lg:text-3xl"}
+          text-3xl
           ${emptyCanvasError ? "bg-red-100": "bg-violet-100"}
           ${emptyCanvasError ? "hover:bg-red-200": "hover:bg-violet-200"}
           ${emptyCanvasError ? "border-red-100": "border-violet-100"}
           ${emptyCanvasError ? "hover:border-red-200": "hover:border-violet-200"}
-        `}
-        onClick={async () => {
-          const canvasUrl = await getCanvasUrl();
-          if (!canvasUrl) {
-            setEmptyCanvasError(true);
-            return;
-          }
-
-          const data = await t.replicate.createPrediction.fetch({
-            textPrompt,
-            canvasUrl,
-          });
-
-          predictionId.current = data.predictionId;
-          predictionOutput.current = data.predictionOutput;
-          setPredictionStatus(data.predictionStatus);
-        }}>
+        `} >
           🧠 🧪 🎨👩‍🔬
           {/* Brain, Testtub, color pallete, lab scientist */}
       </button>
-    </div>
+    </form>
   );
 }
