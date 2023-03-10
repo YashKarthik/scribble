@@ -1,11 +1,17 @@
 import { ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
 import { type NextPage } from "next";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ExcalidrawPage } from "~/components/DrawingCanvas";
 import { PromptInput } from "~/components/PromptInput";
 
 const Home: NextPage = () => {
   const excalidrawRef = useRef<ExcalidrawAPIRefValue|null>(null);
+
+  const predictionId = useRef<string|null>(null);
+  const predictionOutput = useRef<string|null>(null);
+  const [predictionStatus, setPredictionStatus] = useState<
+    "succeeded"| "starting"| "processing"| "failed"| "cancelled" | null
+  >(null);
 
   return (
     <>
@@ -23,14 +29,24 @@ const Home: NextPage = () => {
           gap-2 p-4 h-[45rem]
         ">
 
+          {/* Input div:
+            * Excalidraw canvas
+            * Prompt input box, submit button
+          */}
           <div className="
             border-black border-2 border-solid
             w-1/2 rounded-md
           ">
             <ExcalidrawPage excalidrawRef={excalidrawRef} />
-            <PromptInput excalidrawRef={excalidrawRef} />
+            <PromptInput 
+              excalidrawRef={excalidrawRef}
+              predictionId={predictionId}
+              predictionOutput={predictionOutput}
+              setPredictionStatus={setPredictionStatus}
+            />
           </div>
 
+          {/* Output div: */}
           <div className="
             border-black border-2 border-solid
             w-1/2 rounded-md
