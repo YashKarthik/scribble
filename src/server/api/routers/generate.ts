@@ -1,6 +1,32 @@
+import { log } from "console";
 import { z } from "zod";
+import { env } from "~/env.mjs";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
+
+const Prediction = z.object({
+  id: z.string().min(5),
+  version: z.string().min(5),
+  urls: z.object({
+    get: z.string().url(),
+    cancel: z.string().url(),
+  }),
+  created_at: z.string().transform(d => new Date(d)),
+  started_at: z.string().transform(d => new Date(d)),
+  completed_at: z.string().transform(d => new Date(d)).nullable(),
+  source: z.string().nullish(),
+  status: z.enum(["succeeded", "starting", "processing", "failed"]),
+  input: z.object({
+    image: z.string(),
+    prompt: z.string(),
+  }),
+  output: z.string().nullable(),
+  error: z.string().nullable(),
+  logs: z.string().nullable(),
+  metrics: z.object({
+    predict_time: z.number().nullish(),
+  }),
+});
 
 export const replicateAPIRouter = createTRPCRouter({
   createPrediction: publicProcedure
@@ -17,16 +43,47 @@ export const replicateAPIRouter = createTRPCRouter({
         predictionOutput: z.string().url().nullable(),
       })
     )
-    .query(({ input }) => {
-      console.log(input);
+    .query(async ({ input }) => {
+      console.log("createPrediction init.")
+      const res = await fetch("https://api.replicate.com/v1/predictions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Token " + env.REPLICATE_API_KEY,
+        },
+        body: JSON.stringify({
+          version: "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117",
+          input: {
+            image: input.canvasUrl,
+            prompt: input.textPrompt,
+          }
+        }),
+      });
+      if (!res.ok) return {
+        predictionStatus: "failed",
+        predictionId: "esathaethnoheunohutaeuhtohosehtohutaoehsuhoehth",
+        predictionOutput: null
+      }
+
+      const prediction = Prediction.safeParse(await res.json());
+      if (!prediction.success) {
+        console.log("Unexpected object shape. [zod]");
+        console.log(prediction.error);
+        return {
+          predictionStatus: "failed",
+          predictionId: "esathaethnoheunohutaeuhtohosehtohutaoehsuhoehth",
+          predictionOutput: null
+        }
+      }
+
       return {
-        predictionId: "esaotuhnaoetonthntahtneheo",
-        predictionStatus: "succeeded",
-        predictionOutput: null,
+        predictionId: prediction.data.id,
+        predictionStatus: prediction.data.status,
+        predictionOutput: prediction.data.output,
       };
     }),
 
-  pollPredition: publicProcedure
+  pollPrediction: publicProcedure
     .input(
       z.object({
         predictionId: z.string().min(10),
@@ -34,16 +91,37 @@ export const replicateAPIRouter = createTRPCRouter({
     )
     .output(
       z.object({
-        predictionStatus: z.enum(["succeeded", "starting", "processing", "failed", "cancelled"]),
+        predictionStatus: z.enum(["succeeded", "starting", "processing", "failed"]),
         predictionOutput: z.string().url().nullable(),
       })
     )
-    .query(({ input }) => {
-      console.log(input);
+    .query( async ({ input }) => {
+      const res = await fetch(`https://api.replicate.com/v1/predictions${input.predictionId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": "Token " + env.REPLICATE_API_KEY,
+        },
+      });
+      if (!res.ok) return {
+        predictionStatus: "failed",
+        predictionId: input.predictionId,
+        predictionOutput: null
+      }
+
+      const prediction = Prediction.safeParse(await res.json());
+      if (!prediction.success) {
+        console.log("Unexpected object shape. [zod]");
+        console.log(prediction.error);
+        return {
+          predictionStatus: "failed",
+          predictionId: input.predictionId,
+          predictionOutput: null
+        }
+      }
 
       return {
-        predictionStatus: "succeeded",
-        predictionOutput: "https://"
+        predictionStatus: prediction.data.status,
+        predictionOutput: prediction.data.output
       }
     })
 });

@@ -1,10 +1,14 @@
 import { ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
 import { type NextPage } from "next";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExcalidrawPage } from "~/components/DrawingCanvas";
 import { PromptInput } from "~/components/PromptInput";
+import { api } from "~/utils/api";
+
 
 const Home: NextPage = () => {
+  const t = api.useContext();
+
   const excalidrawRef = useRef<ExcalidrawAPIRefValue|null>(null);
 
   const predictionId = useRef<string|null>(null);
@@ -13,6 +17,28 @@ const Home: NextPage = () => {
   const [predictionStatus, setPredictionStatus] = useState<
     "succeeded"| "starting"| "processing"| "failed" | null
   >(null);
+
+  async function pollPrediction() {
+    if (!predictionId.current) return;
+
+    for (let i=0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 5000))
+      const data = await t.replicate.pollPrediction.fetch({
+        predictionId: predictionId.current
+      });
+
+      if ( data.predictionStatus == "starting" ) return;
+      if ( data.predictionStatus == "processing") return;
+
+      predictionOutput.current = data.predictionOutput;
+      setPredictionStatus(data.predictionStatus);
+      break;
+    }
+  }
+
+  useEffect(() => {
+    pollPrediction();
+  }, [predictionStatus]);
 
   return (
     <>
