@@ -36,9 +36,7 @@ const Home: NextPage = () => {
     }
   }
 
-  useEffect(() => {
-    pollPrediction();
-  }, [predictionStatus]);
+  useInterval(pollPrediction, 5000);
 
   return (
     <>
@@ -138,3 +136,24 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+function useInterval(callbackFn: Function, delayMs: number) {
+  const savedCallback = useRef<Function | null>(null);
+
+  useEffect(() => {
+    savedCallback.current = callbackFn;
+  }, [callbackFn])
+
+  useEffect(() => {
+    function tick() {
+      if (!savedCallback.current) return;
+      savedCallback.current();
+    }
+
+    const intervalId = setInterval(tick, delayMs);
+
+    return () => {
+      clearInterval(intervalId);
+    }
+  }, [callbackFn, delayMs]);
+}

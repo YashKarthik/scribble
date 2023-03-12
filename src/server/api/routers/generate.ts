@@ -1,4 +1,3 @@
-import { log } from "console";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 
@@ -12,7 +11,7 @@ const Prediction = z.object({
     cancel: z.string().url(),
   }),
   created_at: z.string().transform(d => new Date(d)),
-  started_at: z.string().transform(d => new Date(d)),
+  started_at: z.string().transform(d => new Date(d)).nullable(),
   completed_at: z.string().transform(d => new Date(d)).nullable(),
   source: z.string().nullish(),
   status: z.enum(["succeeded", "starting", "processing", "failed"]),
@@ -20,7 +19,7 @@ const Prediction = z.object({
     image: z.string(),
     prompt: z.string(),
   }),
-  output: z.string().nullable(),
+  output: z.array(z.string().url()).nullable(),
   error: z.string().nullable(),
   logs: z.string().nullable(),
   metrics: z.object({
@@ -43,6 +42,7 @@ export const replicateAPIRouter = createTRPCRouter({
         predictionOutput: z.string().url().nullable(),
       })
     )
+    // @ts-expect-error Zod forgets error
     .query(async ({ input }) => {
       console.log("createPrediction init.")
       const res = await fetch("https://api.replicate.com/v1/predictions", {
@@ -79,7 +79,7 @@ export const replicateAPIRouter = createTRPCRouter({
       return {
         predictionId: prediction.data.id,
         predictionStatus: prediction.data.status,
-        predictionOutput: prediction.data.output,
+        predictionOutput: prediction.data.output ? prediction.data.output[1] : null,
       };
     }),
 
@@ -95,8 +95,10 @@ export const replicateAPIRouter = createTRPCRouter({
         predictionOutput: z.string().url().nullable(),
       })
     )
+    // @ts-expect-error Zod forgets error
     .query( async ({ input }) => {
-      const res = await fetch(`https://api.replicate.com/v1/predictions${input.predictionId}`, {
+      console.log("Polling prediction", input.predictionId);
+      const res = await fetch(`https://api.replicate.com/v1/predictions/${input.predictionId}`, {
         method: "GET",
         headers: {
           "Authorization": "Token " + env.REPLICATE_API_KEY,
@@ -108,7 +110,10 @@ export const replicateAPIRouter = createTRPCRouter({
         predictionOutput: null
       }
 
-      const prediction = Prediction.safeParse(await res.json());
+      const t = await res.json();
+      console.log(t);
+
+      const prediction = Prediction.safeParse(t);
       if (!prediction.success) {
         console.log("Unexpected object shape. [zod]");
         console.log(prediction.error);
@@ -121,7 +126,7 @@ export const replicateAPIRouter = createTRPCRouter({
 
       return {
         predictionStatus: prediction.data.status,
-        predictionOutput: prediction.data.output
+        predictionOutput: prediction.data.output ? prediction.data.output[1] : null,
       }
     })
 });
