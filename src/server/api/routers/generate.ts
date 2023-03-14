@@ -3,7 +3,7 @@ import { env } from "~/env.mjs";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-const Prediction = z.object({
+export const Prediction = z.object({
   id: z.string().min(5),
   version: z.string().min(5),
   urls: z.object({

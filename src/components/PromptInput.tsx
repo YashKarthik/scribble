@@ -1,4 +1,5 @@
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
+import { useQuery } from '@tanstack/react-query';
 import React, {
   MutableRefObject,
   Dispatch,
@@ -7,6 +8,7 @@ import React, {
   useRef,
   useState
 } from 'react'
+import { PredictionOutput } from '~/pages/api/createPrediction';
 import { api } from '~/utils/api';
 
 export function PromptInput({ 
@@ -31,7 +33,6 @@ export function PromptInput({
   const [emptyCanvasError, setEmptyCanvasError] = useState(false);
 
   const t = api.useContext();
-
   // Hiding all the madness in a function.
   async function getCanvasUrl() {
     if (!excalidrawRef.current?.ready) return;
@@ -66,6 +67,7 @@ export function PromptInput({
       flex md:flex-row flex-col gap-3 "
       onSubmit={async e => {
         e.preventDefault();
+        console.log("createPrediction.....");
 
         const canvasUrl = await getCanvasUrl();
         if (!canvasUrl) {
@@ -73,10 +75,22 @@ export function PromptInput({
           return;
         }
 
-        const data = await t.replicate.createPrediction.fetch({
-          textPrompt,
-          canvasUrl,
+        const res = await fetch("/api/createPrediction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            textPrompt: textPrompt,
+            canvasUrl: canvasUrl
+          })
         });
+        if (!res.ok) {
+          setPredictionStatus("failed")
+          return;
+        }
+
+        const data: PredictionOutput = await res.json();
 
         predictionId.current = data.predictionId;
         predictionOutput.current = data.predictionOutput;

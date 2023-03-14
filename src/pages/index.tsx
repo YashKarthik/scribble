@@ -20,20 +20,17 @@ const Home: NextPage = () => {
 
   async function pollPrediction() {
     if (!predictionId.current) return;
+    if (predictionStatus == "succeeded") return;
 
-    for (let i=0; i < 10; i++) {
-      await new Promise(resolve => setTimeout(resolve, 5000))
-      const data = await t.replicate.pollPrediction.fetch({
-        predictionId: predictionId.current
-      });
+    const data = await t.replicate.pollPrediction.fetch({
+      predictionId: predictionId.current
+    });
 
-      if ( data.predictionStatus == "starting" ) return;
-      if ( data.predictionStatus == "processing") return;
+    if ( data.predictionStatus == "starting" ) return;
+    if ( data.predictionStatus == "processing") return;
 
-      predictionOutput.current = data.predictionOutput;
-      setPredictionStatus(data.predictionStatus);
-      break;
-    }
+    predictionOutput.current = data.predictionOutput;
+    setPredictionStatus(data.predictionStatus);
   }
 
   useInterval(pollPrediction, 5000);
