@@ -25,6 +25,8 @@ export function PromptInput({
   useEffect(() => {
     import('@excalidraw/excalidraw').then((comp) => {
       exportToCanvasRef.current = comp.exportToCanvas;
+    }).catch(e => {
+      console.log("Error while import Excalidraw exportToCanvas:", e);
     });
   }, []);
 

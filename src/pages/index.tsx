@@ -18,19 +18,23 @@ const Home: NextPage = () => {
     "succeeded"| "starting"| "processing"| "failed" | null
   >(null);
 
-  async function pollPrediction() {
+  function pollPrediction() {
     if (!predictionId.current) return;
     if (predictionStatus == "succeeded") return;
 
-    const data = await t.replicate.pollPrediction.fetch({
+    t.replicate.pollPrediction.fetch({
       predictionId: predictionId.current
-    });
+    }).then(data => {
+      if ( data.predictionStatus == "starting" ) return;
+      if ( data.predictionStatus == "processing") return;
 
-    if ( data.predictionStatus == "starting" ) return;
-    if ( data.predictionStatus == "processing") return;
+      predictionOutput.current = data.predictionOutput;
+      setPredictionStatus(data.predictionStatus);
 
-    predictionOutput.current = data.predictionOutput;
-    setPredictionStatus(data.predictionStatus);
+    }).catch(err => {
+      console.log("Error while polling prediction: \n", err);
+      return;
+    })
   }
 
   useInterval(pollPrediction, 5000);
@@ -134,8 +138,8 @@ const Home: NextPage = () => {
 
 export default Home;
 
-function useInterval(callbackFn: Function, delayMs: number) {
-  const savedCallback = useRef<Function | null>(null);
+function useInterval(callbackFn: () => void, delayMs: number) {
+  const savedCallback = useRef<() => void | null>();
 
   useEffect(() => {
     savedCallback.current = callbackFn;

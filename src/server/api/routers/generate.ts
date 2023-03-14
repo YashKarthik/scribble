@@ -110,7 +110,7 @@ export const replicateAPIRouter = createTRPCRouter({
         predictionOutput: null
       }
 
-      const t = await res.json();
+      const t: unknown = await res.json();
       console.log(t);
 
       const prediction = Prediction.safeParse(t);

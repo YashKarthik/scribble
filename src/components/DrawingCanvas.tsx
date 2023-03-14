@@ -1,10 +1,12 @@
-import { Suspense, MutableRefObject, useState, useEffect, useRef } from "react";
+import { Suspense, MutableRefObject, useState, useEffect, useRef, MemoExoticComponent, ForwardRefExoticComponent } from "react";
 import dynamic from "next/dynamic";
 import { ExcalidrawProps, ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
 
 export function ExcalidrawPage({ excalidrawRef }:{
   excalidrawRef: MutableRefObject<ExcalidrawAPIRefValue|null>
 }) {
+
+  // MemoExoticComponent<ForwardRefExoticComponent<PublicExcalidrawProps & RefAttributes<ExcalidrawAPIRefValue>>>
 
   const [Excalidraw, setExcalidraw] = useState<any>(null);
   const exportToCanvasRef = useRef<any>(null);
@@ -13,7 +15,9 @@ export function ExcalidrawPage({ excalidrawRef }:{
     import('@excalidraw/excalidraw').then((comp) => {
       setExcalidraw(comp.Excalidraw)
       exportToCanvasRef.current = comp.exportToCanvas;
-    });
+    }).catch(e => {
+      console.log("Error while building whiteboard.", e);
+    })
   }, []);
 
   return (
