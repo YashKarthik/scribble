@@ -51,7 +51,7 @@ const Home: NextPage = () => {
         ">Scribble!</h1>
 
         <div className="
-          flex flex-row
+          flex md:flex-row flex-col
           gap-2 p-2 h-[45rem]
         ">
 
@@ -62,8 +62,8 @@ const Home: NextPage = () => {
           <div className={`
             flex flex-col
             border-black border-2 border-solid
-            p-4
-            ${predictionStatus ? "w-1/2" : "w-full"} rounded-md
+            md:h-full ${predictionStatus ? "md:w-1/2 w-full min-h-full" : "w-full h-5/6"} 
+            p-4 rounded-md
           `}>
             <ExcalidrawPage excalidrawRef={excalidrawRef} />
             <PromptInput 
@@ -80,7 +80,7 @@ const Home: NextPage = () => {
               flex flex-col
               justify-center items-center
               border-black border-2 border-solid
-              w-1/2 rounded-md
+              md:w-1/2 w-full rounded-md
             ">
               { (predictionStatus == "succeeded" && predictionOutput.current) &&
                 <img src={predictionOutput.current} alt="Your generated image" />
