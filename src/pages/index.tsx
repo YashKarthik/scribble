@@ -1,5 +1,6 @@
 import { ExcalidrawAPIRefValue } from "@excalidraw/excalidraw/types/types";
 import { type NextPage } from "next";
+import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { ExcalidrawPage } from "~/components/DrawingCanvas";
 import { PromptInput } from "~/components/PromptInput";
@@ -41,6 +42,12 @@ const Home: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Scribble: turn rough sketches into art!</title>
+        <meta property="og:title" content="Scribble: turn rough sketches into art!" key="title" />
+        <meta property="og:image" content="og.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </Head>
       <main className="flex flex-col min-h-screen">
 
         <h1 className="

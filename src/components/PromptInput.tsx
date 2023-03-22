@@ -118,10 +118,10 @@ export function PromptInput({
 
       <button
         type="submit"
-        title="Generate"
+        title="🧠 🧪 🎨👩‍🔬"
         className={`
           px-4 mx-3 md:w-fit w-full
-          bg-violet-100 text-indigo-700 font-semibold
+          bg-violet-100 text-indigo-600 font-semibold
           border-2 rounded-md border-solid 
           ${predictionId.current ? "lg:text-xl" : "lg:text-3xl"}
           text-3xl
@@ -130,8 +130,7 @@ export function PromptInput({
           ${emptyCanvasError ? "border-red-100": "border-violet-100"}
           ${emptyCanvasError ? "hover:border-red-200": "hover:border-violet-200"}
         `} >
-          🧠 🧪 🎨👩‍🔬
-          {/* Brain, Testtub, color pallete, lab scientist */}
+          Draw
       </button>
     </form>
   );
